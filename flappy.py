@@ -12,19 +12,20 @@ class Bird(pygame.sprite.Sprite):
 
         self.image = pygame.Surface((50, 50), pygame.SRCALPHA)
         pygame.draw.circle(self.image, "Yellow", (25, 25), 25)
-        self.rect = self.image.get_rect(center=(200,200))
+        self.rect = self.image.get_rect(center=(250,250))
         self.gravity = 0
 
     def bird_input(self):
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_SPACE] or pressed[pygame.K_UP]:
-            self.gravity = -30
+            self.gravity = -15
 
     def apply_gravity(self):
-        self.gravity += 2
+        self.gravity += 1
         self.rect.y += self.gravity
         if self.rect.bottom >= 700:
             self.rect.bottom = 700
+            pygame.event.post(pygame.event.Event(pygame.USEREVENT + 2))
 
     def update(self):
         self.bird_input()
@@ -36,7 +37,8 @@ class PipeUpper(pygame.sprite.Sprite):
 
         self.image = pygame.Surface((60, 600))
         self.image.fill("Green")
-        self.rect = self.image.get_rect(bottomleft=(1800,y_pos-60))
+        self.rect = self.image.get_rect(bottomleft=(1600,y_pos-75))
+        self.passed = False
 
     def destroy(self):
         if self.rect.right < 0:
@@ -44,6 +46,7 @@ class PipeUpper(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x -= 10
+        self.destroy()
 
 class PipeLower(pygame.sprite.Sprite):
     def __init__(self, y_pos) -> None:
@@ -51,8 +54,7 @@ class PipeLower(pygame.sprite.Sprite):
 
         self.image = pygame.Surface((60, 600))
         self.image.fill("Green")
-        self.rect = self.image.get_rect(topleft=(1800,y_pos+60))
-        # pygame.draw.rect(self.image,"Green",self.rect)
+        self.rect = self.image.get_rect(topleft=(1600,y_pos+75))
 
     def destroy(self):
         if self.rect.right < 0:
@@ -65,10 +67,8 @@ class PipeLower(pygame.sprite.Sprite):
 
 def collision_sprite():
     if pygame.sprite.spritecollide(bird.sprite,obstacle_group,False):
-        obstacle_group.empty()
         return False
     return True
-
 
 pygame.init()
 
@@ -82,10 +82,10 @@ score = 0
 
 bird = pygame.sprite.GroupSingle()
 bird.add(Bird())
-
 obstacle_group = pygame.sprite.Group()
-
 bg_rect = pygame.Rect(0,0,1600,600)
+
+GROUND_COLLISION_EVENT = pygame.USEREVENT + 2
 
 # Timers
 obstacle_timer = pygame.USEREVENT + 1
@@ -96,27 +96,52 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-
-        if event.type == obstacle_timer:
-            print("trigger")
-            random_y = randint(100,600)
+        if event.type == obstacle_timer and game_active:
+            random_y = randint(300, 550)
             obstacle_group.add(PipeUpper(y_pos=random_y))
             obstacle_group.add(PipeLower(y_pos=random_y))
-            print(1)
+        if event.type == GROUND_COLLISION_EVENT:
+            game_active = False
 
-    # set background white
     screen.fill('White')
-    # bird_rect = pygame.draw.circle(screen, 'Yellow', (200,bird_y_pos), 30)
-
     bird.draw(screen)
-    bird.update()
-
     obstacle_group.draw(screen)
-    obstacle_group.update()
-    
-    pygame.draw.rect(screen, 'Black', pygame.Rect(0,700,1600,100))
+    pygame.draw.rect(screen, 'Black', pygame.Rect(0, 700, 1600, 100))
+    font = pygame.font.Font(None, 50)
+    score_surface = font.render(f'Score: {score}', True, 'Black')
+    screen.blit(score_surface, (50, 50))
 
+    if game_active:
+        bird.update()
+        obstacle_group.update()
 
-    # update everything
+        for obstacle in obstacle_group:
+            if isinstance(obstacle, PipeUpper) and not obstacle.passed:
+                if obstacle.rect.right < bird.sprite.rect.left:
+                    obstacle.passed = True
+                    score += 1
+
+        game_active = collision_sprite()
+
+    else:
+        # Optional: Draw Game Over screen/text
+        font = pygame.font.Font(None, 100)
+        text = font.render("Game Over", True, "Red")
+        text_rect = text.get_rect(center=(800, 300))
+        screen.blit(text, text_rect)
+
+        subfont = pygame.font.Font(None, 50)
+        subtext = subfont.render("Press SPACE to Restart", True, "Black")
+        subtext_rect = subtext.get_rect(center=(800, 400))
+        screen.blit(subtext, subtext_rect)
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_SPACE]:
+            bird.sprite.rect.center = (200, 200)
+            bird.sprite.gravity = 0
+            obstacle_group.empty()
+            score = 0
+            game_active = True
+
     pygame.display.update()
     clock.tick(60)

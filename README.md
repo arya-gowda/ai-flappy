@@ -6,11 +6,7 @@
 
 A neural network–controlled Flappy Bird agent trained using a genetic algorithm (GA). The bird learns to play by evolving its neural network through generations of gameplay.
 
----
-
-## 🎮 Demo
-
-![Training Demo](media/flappy_training.gif)
+(media/flappy_demo.gif)
 
 ---
 
@@ -63,3 +59,44 @@ The genetic algorithm evolves bird neural networks over generations.
 ### Train the Agent
 ```bash
 python train.py
+```
+
+### Train the Agent
+```bash
+python train.py
+```
+
+---
+
+## ⚙️ Configurable Settings (`config.py`)
+- `GENERATION_LIMIT`: Number of generations run
+- `POPULATION_SIZE`
+- `MUTATION_RATE`: GA mutation rate
+- `SELECTION_RATE`: GA selection rate
+- `SCREEN_WIDTH`
+- `SCREEN_HEIGHT`
+- `PIPE_GAP`: Pipe gap size
+- `PIPE_WIDTH`
+- `PIPE_SPEED`
+- `PIPE_SPACING`: Distance between pipes
+- `BIRD_RADIUS`: Bird size
+- `FPS`
+- `VISUALIZE`: Training visualization option
+
+---
+
+## 📊 Logging
+
+`logger.py` logs:
+
+- Training log with max fitnesses by generation  
+- Best and average fitness plots
+- Best performing model saved  
+
+---
+
+## 📝 Potential Improvements
+
+- Use recurrent neural networks (RNNs)  
+- Improve the fitness function for better learning curves
+- Save and load training checkpoints

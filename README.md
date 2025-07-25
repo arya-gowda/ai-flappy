@@ -52,6 +52,8 @@ The genetic algorithm evolves bird neural networks over generations.
 - **Crossover**: Combine weights of parents
 - **Mutation**: Add small random noise to offspring
 
+![Training Demo](media/flappy_train_demo.gif)
+
 ---
 
 ## 🚀 How to Run

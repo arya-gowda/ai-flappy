@@ -6,7 +6,7 @@
 
 A neural network–controlled Flappy Bird agent trained using a genetic algorithm (GA). The bird learns to play by evolving its neural network through generations of gameplay.
 
-(media/flappy_demo.gif)
+![Model Demo](media/flappy_demo.gif)
 
 ---
 
